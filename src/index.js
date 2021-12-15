@@ -1,7 +1,9 @@
+import { distance as dist, lineEnd, angle } from "./lib";
+
 const canvas = document.createElement('canvas');
 document.body.appendChild(canvas);
-let width = canvas.width = 1000;
-let height = canvas.height = 1000;
+let width = canvas.width = 1024;
+let height = canvas.height = 1024;
 let center = [width / 2, height / 2];
 
 const ctx = canvas.getContext('2d');
@@ -14,49 +16,47 @@ window.addEventListener('mousemove', ({ clientX, clientY }) => {
   mouse[1] = clientY - rect.top;
 });
 
-function dist(x1, y1, x2, y2) {
-  return Math.hypot(x1 - x2, y1 - y2);
-}
-
-function lineEnd(x, y, angle, length) {
-  return [
-    Math.cos(angle) * length + x,
-    Math.sin(angle) * length + y
-  ];
-}
-
-function angle(cx, cy, ex, ey) {
-  return Math.atan2(ey - cy, ex - cx);
-}
-
 ctx.lineWidth = 4;
 ctx.lineCap = "round";
 
-const brd = -100;
+const brd = -200;
 
 void function loop() {
   ctx.globalCompositeOperation = "source-over";
   ctx.fillStyle = 'black';
   ctx.fillRect(0, 0, width, height);
   ctx.globalCompositeOperation = "screen";
-  const stepY = height / 10;
+  const stepY = height / 20;
   for (let y = -brd; y < height + brd; y += stepY) {
-    const stepX = width / 10;
+    const stepX = width / 20;
     for (let x = -brd; x < width + brd; x += stepX) {
       let pos = [x + stepX / 2, y + stepY / 2];
       ctx.lineWidth = Math.max(1, (100 - dist(...pos, ...mouse)) / 10);
       ctx.lineWidth = stepX;
 
+      const start = [...pos];
+
       ctx.beginPath();
       ctx.moveTo(...pos);
-      for (let i = 0; i < 50; i++) {
+      for (let i = 0; i < 25; i++) {
         const theta = angle(...mouse, ...pos);
         const ang = theta + Math.PI / 2 - 0.01;
         pos = lineEnd(...pos, ang, 5);
         ctx.lineTo(...pos);
       }
-      ctx.strokeStyle = `hsl(${pos[0] + pos[1]}, 100%, 10%)`;
-      ctx.stroke();
+      // ctx.strokeStyle = `hsl(${pos[0] + pos[1]}, 100%, 10%)`;
+
+      if (pos[0]) {
+
+        const gradient = ctx.createLinearGradient(...start, ...pos);
+        gradient.addColorStop(0, 'black');
+        gradient.addColorStop(0.33, `hsl(${pos[0] + pos[1] + (mouse[0] * mouse[1]) * 0.001}, 100%, 10%)`);
+        gradient.addColorStop(0.66, `hsl(${(pos[0] + pos[1]) * 2 + 90}, 100%, 10%)`);
+        gradient.addColorStop(1, `hsl(${pos[0] + pos[1] + 180}, 100%, 10%)`);
+        ctx.strokeStyle = gradient;
+        ctx.stroke();
+      }
+
 
 
 
