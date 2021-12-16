@@ -12,8 +12,10 @@ const mouse = [NaN, NaN];
 
 window.addEventListener('mousemove', ({ clientX, clientY }) => {
   const rect = canvas.getBoundingClientRect();
-  mouse[0] = clientX - rect.left;
-  mouse[1] = clientY - rect.top;
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  mouse[0] = (clientX - rect.left) * scaleX;
+  mouse[1] = (clientY - rect.top) * scaleY;
 });
 
 ctx.lineWidth = 4;
