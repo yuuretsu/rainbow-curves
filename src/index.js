@@ -10,13 +10,16 @@ const ctx = canvas.getContext('2d');
 
 const mouse = [NaN, NaN];
 
-window.addEventListener('mousemove', ({ clientX, clientY }) => {
+function setMouse({ clientX, clientY }) {
   const rect = canvas.getBoundingClientRect();
   const scaleX = canvas.width / rect.width;
   const scaleY = canvas.height / rect.height;
   mouse[0] = (clientX - rect.left) * scaleX;
   mouse[1] = (clientY - rect.top) * scaleY;
-});
+}
+
+window.addEventListener('mousemove', setMouse);
+window.addEventListener('click', setMouse);
 
 ctx.lineWidth = 4;
 ctx.lineCap = "round";
@@ -50,7 +53,7 @@ void function loop() {
       ctx.moveTo(...pos);
       for (let i = 0; i < 25; i++) {
         const theta = angle(...mouse, ...pos);
-        const distance = dist(...pos, ...mouse);
+        const distance = Math.min(5000, dist(...pos, ...mouse));
         const ang = theta + Math.PI / 2 + vortex + Math.sin((i - t * distance * 0.0005) * distance * 0.0001) * distance * 0.001;
         // const ang = theta + Math.PI / 2 + vortex;
         pos = lineEnd(...pos, ang, 5);
